@@ -4,6 +4,7 @@ import Gallery from "./Gallery";
 import Loader from "./Loader";
 import { Modal } from "./Modal";
 import { MapContainer } from "../components/Map";
+import "./container.css";
 
 function mockImageWithCoords(image) {
   return {
@@ -44,7 +45,9 @@ const Container = ({ searchTerm }) => {
     <div>
       <Modal open={show}>
         <MapContainer lat={lat} lng={lng} zoom={10} />
-        <button onClick={handleHide}>close</button>
+        <button onClick={handleHide} className="modal-close-btn">
+          close
+        </button>
       </Modal>
       <div className="photo-container">
         {loading ? (
