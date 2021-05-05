@@ -12,27 +12,43 @@ function formatQuery(query) {
   return `?method=flickr.photos.search&api_key=${apiKey}&tags=${query}&per_page=24&format=json&nojsoncallback=1`;
 }
 
-const PhotoContextProvider = (props) => {
-  const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(true);
+function getImages(data) {
+  return data?.photos?.photo;
+}
 
-  const runSearch = React.useCallback(
+function useRunSearch(onLoading, onSuccess, hash) {
+  return React.useCallback(
     async (query) => {
+      if (hash.has(query)) {
+        const images = hash.get(query);
+        onSuccess(images);
+        onLoading(false);
+        return Promise.resolve();
+      }
       try {
-        setLoading(true);
+        onLoading(true);
         const { data } = await imgApi.get(formatQuery(query));
-        setImages(data.photos.photo);
+        hash.set(query, getImages(data));
+        onSuccess(getImages(data));
       } catch (error) {
         console.error(
           "Encountered an error with fetching and parsing data",
           error
         );
       } finally {
-        setLoading(false);
+        onLoading(false);
       }
     },
-    [setLoading, setImages]
+    [onLoading, onSuccess, hash]
   );
+}
+
+const PhotoContextProvider = (props) => {
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const hashRef = React.useRef(new Map());
+  const searchHash = hashRef?.current;
+  const runSearch = useRunSearch(setLoading, setImages, searchHash);
 
   return (
     <PhotoContext.Provider value={{ images, loading, runSearch }}>
