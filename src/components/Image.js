@@ -1,8 +1,8 @@
 import React from "react";
 
-const Image = ({ url, title }) => (
+const Image = ({ onClick, title, url }) => (
   <li>
-    <img src={url} alt={title} />
+    <img src={url} alt={title} onClick={onClick} />
   </li>
 );
 
